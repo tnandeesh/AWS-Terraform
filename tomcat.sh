@@ -6,10 +6,14 @@ sudo apt-get install git wget unzip curl tree -y
 sudo apt-get install openjdk-11-jdk -y
 sudo cp -pvr /etc/environment "/etc/environment_$(date +%F_%R)"
 echo "JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64/" >> /etc/environment
+source /etc/environment
+echo $JAVA_HOME
 cd /opt/
-sudo wget https://downloads.apache.org/tomcat/tomcat-8/v8.5.94/bin/apache-tomcat-8.5.94.tar.gz
-sudo tar xvzf apache-tomcat-8.5.94.tar.gz
-sudo mv apache-tomcat-8.5.94 tomcat
+sudo wget https://downloads.apache.org/tomcat/tomcat-8/v8.5.96/bin/apache-tomcat-8.5.96.tar.gz
+sudo apt-get update
+sudo tar xvzf apache-tomcat-8.5.96.tar.gz
+sudo mv apache-tomcat-8.5.96 tomcat
+sudo apt-get update
 cd /opt/tomcat/
 sudo cp -pvr /opt/tomcat/conf/tomcat-users.xml "/opt/tomcat/conf/tomcat-users.xml_$(date +%F_%R)"
 sed -i '$d' /opt/tomcat/conf/tomcat-users.xml
@@ -21,12 +25,15 @@ echo '<role rolename="admin-gui"/>'     >> /opt/tomcat/conf/tomcat-users.xml
 echo '<role rolename="admin-script"/>' >> /opt/tomcat/conf/tomcat-users.xml
 echo '<user username="admin" password="redhat@123" roles="manager-gui,manager-script,manager-jmx,manager-status,admin-gui,admin-script"/>' >> /opt/tomcat/conf/tomcat-users.xml
 echo "</tomcat-users>" >> /opt/tomcat/conf/tomcat-users.xml
+
 sudo echo '<?xml version="1.0" encoding="UTF-8"?>' > /opt/tomcat/webapps/manager/META-INF/context.xml 
 sudo echo '<Context antiResourceLocking="false" privileged="true" >' >> /opt/tomcat/webapps/manager/META-INF/context.xml 
 sudo echo '</Context>' >> /opt/tomcat/webapps/manager/META-INF/context.xml 
+
 sudo echo '<?xml version="1.0" encoding="UTF-8"?>' > /opt/tomcat/webapps/host-manager/META-INF/context.xml 
 sudo echo '<Context antiResourceLocking="false" privileged="true" >' >> /opt/tomcat/webapps/host-manager/META-INF/context.xml 
 sudo echo '</Context>' >> /opt/tomcat/webapps/host-manager/META-INF/context.xml 
+
 sudo echo '[Unit]' > /etc/systemd/system/tomcat.service 
 sudo echo 'Description=Apache Tomcat Web Application Container' >> /etc/systemd/system/tomcat.service 
 sudo echo 'After=network.target' >> /etc/systemd/system/tomcat.service 
@@ -47,10 +54,11 @@ sudo echo 'RestartSec=10' >> /etc/systemd/system/tomcat.service
 sudo echo 'Restart=always' >> /etc/systemd/system/tomcat.service 
 sudo echo '[Install]' >> /etc/systemd/system/tomcat.service 
 sudo echo 'WantedBy=multi-user.target' >> /etc/systemd/system/tomcat.service 
+sudo apt-get update
+systemctl enable tomcat.service
 systemctl status tomcat.service 
 systemctl enable tomcat.service 
 systemctl status tomcat.service 
 systemctl start tomcat.service 
 systemctl start tomcat.service 
-cd /opt/tomcat/bin/
-./startup.shs
+
